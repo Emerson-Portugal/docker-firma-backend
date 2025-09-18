@@ -1,0 +1,20 @@
+./firmados
+./originales
+
+
+# Otros
+__pycache__/
+__pycache__
+*.pyc
+
+
+# Ignorar archivos compilados de Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+## ignorar store
+store/
+
+app/storage/*
