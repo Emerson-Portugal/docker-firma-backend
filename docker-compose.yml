@@ -1,16 +1,46 @@
-version: '3.8'
+version: "3.9"
+
+volumes:
+  pgdata:           # Para persistencia de Postgres
+  backend_storage:  # Para PDFs y firmados
+
+networks:
+  firma_net:
+    driver: bridge
 
 services:
-  backend:
-    build: .
+  postgres_firmas_container:
+    image: postgres:16
+    container_name: postgres_firmas_container
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      LANG: en_US.UTF-8
+      LC_ALL: en_US.UTF-8
+    volumes:
+      - pgdata:/var/lib/postgresql/data    # persistencia DB
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"  # puerto host:contenedor
+    networks:
+      - firma_net
+    restart: always
+
+  firmas_backend_container:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: firmas_backend_container
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend/app:/app/app       # solo en desarrollo
+      - ./backend/storage:/app/storage
+    depends_on:
+      - postgres_firmas_container
     ports:
       - "8000:8000"
-    env_file: .env
-    restart: always
-    networks:                # 👈 Añadimos la red externa
+    networks:
       - firma_net
-
-networks:                    # 👈 Declaramos la red externa
-  firma_net:
-    external: true
+    restart: always
