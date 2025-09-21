@@ -36,7 +36,7 @@ services:
       - ./backend/.env
     volumes:
       - ./backend/app:/app/app       # solo en desarrollo
-      - ./backend/storage:/app/storage
+      - ./backend/app/storage:/app/app/storage
     depends_on:
       - postgres_firmas_container
     ports:
