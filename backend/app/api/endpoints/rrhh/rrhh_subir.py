@@ -601,25 +601,16 @@ async def upload_documentos_lote(
                 mes_actual = now.month
                 anio_actual = now.year
                 
-                # Calcular el mes anterior
-                if mes_actual == 1:
-                    mes_anterior = 12
-                    anio_anterior = anio_actual - 1
-                else:
-                    mes_anterior = mes_actual - 1
-                    anio_anterior = anio_actual
-                
-                # Verificar si el archivo es del mes actual, anterior o posterior
+                # Validar rango permitido: desde Enero hasta el mes actual, dentro del año actual
                 es_mes_valido = (
-                    (anio_archivo == anio_actual and mes_archivo == mes_actual) or  # Mes actual
-                    (anio_archivo == anio_anterior and mes_archivo == mes_anterior)  # Mes anterior
+                    anio_archivo == anio_actual and 1 <= mes_archivo <= mes_actual
                 )
                 
                 if not es_mes_valido:
                     errores.append({
                         "archivo": file.filename,
                         "dni": dni,
-                        "error": f"Solo se permiten documentos del mes actual ({mes_actual}/{anio_actual}) o del mes anterior ({mes_anterior}/{anio_anterior})"
+                        "error": f"Solo se permiten documentos desde Enero hasta {meses[mes_actual]} de {anio_actual}"
                     })
                     continue
                 
