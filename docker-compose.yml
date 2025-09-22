@@ -18,6 +18,8 @@ services:
       POSTGRES_DB: ${DB_NAME}
       LANG: en_US.UTF-8
       LC_ALL: en_US.UTF-8
+      TZ: America/Lima
+    command: ["postgres", "-c", "timezone=America/Lima"]
     volumes:
       - pgdata:/var/lib/postgresql/data    # persistencia DB
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -34,6 +36,8 @@ services:
     container_name: firmas_backend_container
     env_file:
       - ./backend/.env
+    environment:
+      - TZ=America/Lima
     volumes:
       - ./backend/app:/app/app       # solo en desarrollo
       - ./backend/app/storage:/app/app/storage

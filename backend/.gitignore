@@ -16,3 +16,7 @@ __pycache__/
 
 
 .env
+
+
+/app/storage/firmados/*
+/app/storage/originales/*

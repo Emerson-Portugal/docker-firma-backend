@@ -5,6 +5,7 @@ import shutil
 from datetime import datetime
 import uuid
 from psycopg2.extras import RealDictCursor
+from app.utils.timezone import now_lima
 
 from app.database import get_connection
 from app.api.endpoints.auth.auth_controller import get_current_user
@@ -89,7 +90,7 @@ async def upload_documento(
         usuario_id = usuario[0]
 
         # Verificar si ya existe un documento para este usuario en el mismo mes y año
-        now = datetime.now()
+        now = now_lima()
         cursor.execute("""
             SELECT COUNT(*) 
             FROM documentos d
@@ -141,7 +142,7 @@ async def upload_documento(
             VALUES (%s, %s, %s, %s, %s)
             RETURNING id
             """,
-            (usuario_id, unique_filename, relative_path, 'pendiente', datetime.now())
+            (usuario_id, unique_filename, relative_path, 'pendiente', now_lima())
         )
         
         documento_id = cursor.fetchone()[0]
@@ -537,7 +538,7 @@ async def upload_documentos_lote(
             
             # Buscar año (4 dígitos)
             anio_match = re.search(r'(?:^|[_-])(20\d{2})(?:$|[_-])', nombre_archivo)
-            anio = int(anio_match.group(1)) if anio_match else datetime.now().year
+            anio = int(anio_match.group(1)) if anio_match else now_lima().year
             
             # Buscar mes numérico (1-12 o 01-12)
             mes_match = re.search(r'(?:^|[_-])(0?[1-9]|1[0-2])(?:$|[^0-9])', nombre_archivo)
@@ -550,7 +551,7 @@ async def upload_documentos_lote(
                     return mes_num, anio
             
             # Si no se encuentra, usar el mes y año actual
-            return datetime.now().month, anio
+            return now_lima().month, anio
         
         for file in files:
             try:
@@ -597,7 +598,7 @@ async def upload_documentos_lote(
                 mes_archivo, anio_archivo = extraer_mes_anio(file.filename)
                 
                 # Obtener mes y año actual
-                now = datetime.now()
+                now = now_lima()
                 mes_actual = now.month
                 anio_actual = now.year
                 
@@ -681,7 +682,7 @@ async def upload_documentos_lote(
                     VALUES (%s, %s, %s, %s, %s)
                     RETURNING id
                     """,
-                    (usuario_id, unique_filename, relative_path, 'pendiente', datetime.now())
+                    (usuario_id, unique_filename, relative_path, 'pendiente', now_lima())
                 )
                 
                 documento_id = cursor.fetchone()[0]

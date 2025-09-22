@@ -7,6 +7,7 @@ import uvicorn
 from pathlib import Path
 import os
 from datetime import datetime , timezone
+from app.utils.timezone import now_lima
 
 # Importar routers
 try:
@@ -163,14 +164,14 @@ async def health_check():
             return {
                 "status": "ok",
                 "database": "connected",
-                "timestamp": datetime.now(timezone.utc).isoformat()
+                "timestamp": now_lima().isoformat()
 
             }
         else:
             return {
                 "status": "error",
                 "database": "connection_failed",
-                "timestamp": datetime.now(timezone.utc).isoformat()
+                "timestamp": now_lima().isoformat()
 
             }
     except Exception as e:
@@ -178,7 +179,7 @@ async def health_check():
             "status": "error",
             "database": "error",
             "error": str(e),
-            "timestamp": datetime.now(timezone.utc).isoformat()
+            "timestamp": now_lima().isoformat()
 
         }
 

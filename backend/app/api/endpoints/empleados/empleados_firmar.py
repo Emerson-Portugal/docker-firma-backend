@@ -12,6 +12,7 @@ from psycopg2.extras import RealDictCursor
 from app.database import get_connection
 from app.api.endpoints.auth.auth_controller import get_current_user
 from app.api.endpoints.auth.auth_valider import TokenData
+from app.utils.timezone import now_lima
 
 # Configurar el esquema de autenticación
 security = HTTPBearer()
@@ -33,7 +34,7 @@ def firmar_pdf(original_path, nombre_firmante, dni_firmante):
     can = canvas.Canvas(packet, pagesize=letter)
     
     # Configurar el texto de la firma
-    texto_firma = f"Firmado por: {nombre_firmante} (DNI: {dni_firmante})\nFecha: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}"
+    texto_firma = f"Firmado por: {nombre_firmante} (DNI: {dni_firmante})\nFecha: {now_lima().strftime('%d/%m/%Y %H:%M:%S')}"
     
     # Posición del texto de firma (abajo a la derecha)
     can.setFont("Helvetica", 9)
@@ -180,7 +181,7 @@ async def firmar_documento(
         )
         
         # 4. Actualizar la base de datos
-        now = datetime.now()
+        now = now_lima()
         
         # Actualizar el documento
         cursor.execute("""
