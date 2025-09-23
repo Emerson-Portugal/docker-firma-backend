@@ -1,12 +1,19 @@
-from datetime import datetime, timezone
-from zoneinfo import ZoneInfo
+from datetime import datetime, timezone, timedelta
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-# Zona horaria de Lima, Perú
-lima_tz = ZoneInfo("America/Lima")
+# Intentar cargar la zona horaria de Lima, Perú
+try:
+    lima_tz = ZoneInfo("America/Lima")
+except ZoneInfoNotFoundError:
+    # Fallback: offset fijo -05:00 (sin DST) si no hay base de datos IANA disponible
+    print("Advertencia: No se encontró 'America/Lima' en zoneinfo. Usando offset fijo -05:00. Instala el paquete 'tzdata' en tu entorno para soporte completo.")
+    lima_tz = timezone(timedelta(hours=-5))
+
 
 def now_lima() -> datetime:
-    """Devuelve la fecha y hora actuales con tz America/Lima (timezone-aware)."""
+    """Devuelve la fecha y hora actuales con tz America/Lima (o -05:00 si no está disponible)."""
     return datetime.now(lima_tz)
+
 
 def to_lima(dt: datetime) -> datetime:
     """

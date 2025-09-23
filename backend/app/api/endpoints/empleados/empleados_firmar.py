@@ -28,58 +28,75 @@ def get_base_storage_path():
     return os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), "storage")
 
 def firmar_pdf(original_path, nombre_firmante, dni_firmante):
-    """Agrega la firma al PDF y lo guarda en la carpeta de firmados"""
-    # Crear el PDF de la firma
-    packet = BytesIO()
-    can = canvas.Canvas(packet, pagesize=letter)
-    
-    # Configurar el texto de la firma
-    texto_firma = f"Firmado por: {nombre_firmante} (DNI: {dni_firmante})\nFecha: {now_lima().strftime('%d/%m/%Y %H:%M:%S')}"
-    
-    # Posición del texto de firma (abajo a la derecha)
-    can.setFont("Helvetica", 9)
-    text_width = can.stringWidth(texto_firma, "Helvetica", 9)
-    x = 550 - text_width  # 550 es aproximadamente el ancho de una página carta en puntos (72 dpi)
-    y = 20  # 20 puntos desde abajo
-    
-    # Dibujar fondo blanco para mejor legibilidad
-    can.setFillColorRGB(1, 1, 1)
-    can.rect(x-2, y-2, text_width+4, 30, fill=1, stroke=0)
-    
-    # Dibujar texto
-    can.setFillColorRGB(0, 0, 0)
-    text_object = can.beginText(x, y + 15)
-    for line in texto_firma.split('\n'):
-        text_object.textLine(line)
-    can.drawText(text_object)
-    
-    can.save()
-    
-    # Mover al comienzo del buffer
-    packet.seek(0)
-    
-    # Leer el PDF original
+    """Agrega la firma al PDF y lo guarda en la carpeta de firmados
+    Posiciona la firma en el recuadro de 'TRABAJADOR' (lado derecho inferior)."""
+    # Leer el PDF original primero para conocer el tamaño de página
     reader = PdfReader(original_path)
     writer = PdfWriter()
-    
-    # Agregar la firma a cada página
-    for page in reader.pages:
-        # Crear una nueva página con el contenido original
-        page.merge_page(PdfReader(packet).pages[0])
+
+    # Usar tamaño de la primera página como referencia
+    first_page = reader.pages[0]
+    page_width = float(first_page.mediabox.width)
+    page_height = float(first_page.mediabox.height)
+
+    # Crear el PDF de la firma con el mismo tamaño que el original
+    packet = BytesIO()
+    can = canvas.Canvas(packet, pagesize=(page_width, page_height))
+
+    # Configurar el texto de la firma
+    texto_firma_lineas = [
+        f"Firmado por: {nombre_firmante} (DNI: {dni_firmante})",
+        f"Fecha: {now_lima().strftime('%d/%m/%Y %H:%M:%S')}"
+    ]
+
+    # Estilo de texto
+    can.setFont("Helvetica", 9)
+
+    # Calcular área exacta del recuadro "TRABAJADOR"
+    margen = 36
+    x_inicio = page_width * 0.68  # Ajustado al bloque TRABAJADOR
+    x_fin = page_width - margen
+    ancho_bloque = x_fin - x_inicio
+
+    # Altura desde abajo donde va la firma
+    y_firma = 630  # Ajusta si quieres más arriba o abajo
+
+    # Calcular ancho máximo del texto para centrarlo en el bloque
+    line_widths = [can.stringWidth(linea, "Helvetica", 9) for linea in texto_firma_lineas]
+    max_line_width = max(line_widths)
+    x_texto = x_inicio + max(0, (ancho_bloque - max_line_width) / 2)
+
+    # Dibujar las líneas de texto una encima de la otra, centradas
+    # No dibujar fondo para no tapar líneas del PDF
+    leading = 12  # separación entre líneas
+    y_actual = y_firma + leading  # primera línea un poco arriba
+    for linea in texto_firma_lineas:
+        can.drawString(x_texto, y_actual, linea)
+        y_actual -= leading
+
+    can.save()
+    packet.seek(0)
+    overlay = PdfReader(packet).pages[0]
+
+    # Agregar la firma solo en la última página
+    total_pages = len(reader.pages)
+    for i, page in enumerate(reader.pages):
+        if i == total_pages - 1:
+            page.merge_page(overlay)
         writer.add_page(page)
-    
+
     # Crear directorio de firmados con el DNI si no existe
     firmados_dir = os.path.join(get_base_storage_path(), "firmados", dni_firmante)
     os.makedirs(firmados_dir, exist_ok=True)
-    
+
     # Generar ruta del archivo firmado
     nombre_archivo = os.path.basename(original_path)
     ruta_firmado = os.path.join(firmados_dir, nombre_archivo)
-    
+
     # Guardar el PDF firmado
     with open(ruta_firmado, "wb") as output_file:
         writer.write(output_file)
-    
+
     # Retornar la ruta relativa al directorio de firmados
     return os.path.join("firmados", dni_firmante, nombre_archivo)
 
