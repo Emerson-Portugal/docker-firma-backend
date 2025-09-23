@@ -1012,24 +1012,61 @@ async def upload_documento_test(
             
         usuario_id = usuario[0]
 
-        # Crear un nombre de archivo con el formato: DNI_mes_año_originalname.pdf
-        file_extension = os.path.splitext(file.filename)[1]
-        base_filename = f"{dni}_{mes:02d}_{anio}{file_extension}"
-        unique_filename = f"{base_filename}"
+        # Mapeo de meses (para nombre del archivo)
+        meses = {
+            1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril",
+            5: "Mayo", 6: "Junio", 7: "Julio", 8: "Agosto",
+            9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre"
+        }
+        mes_nombre = meses[mes]
+
+        # Validar duplicados (por DNI, mes y año)
+        cursor.execute(
+            """
+            SELECT COUNT(*) 
+            FROM documentos d
+            JOIN usuarios u ON d.usuario_id = u.id
+            WHERE u.dni = %s 
+            AND (
+                (d.nombre_archivo LIKE %s) OR
+                (d.nombre_archivo LIKE %s) OR
+                (d.nombre_archivo LIKE %s) OR
+                (d.nombre_archivo LIKE %s)
+            )
+            """,
+            (
+                dni,
+                f"%{mes:02d}_{anio}%",               # 08_2025
+                f"%{mes}_{anio}%",                   # 8_2025
+                f"%{mes_nombre.lower()}_{anio}%",    # agosto_2025
+                f"%{mes_nombre.capitalize()}_{anio}%" # Agosto_2025
+            )
+        )
+        if cursor.fetchone()[0] > 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Ya existe un documento para el usuario con DNI {dni} en {mes_nombre} de {anio}"
+            )
+
+        # Crear un nombre de archivo con el mismo formato que el endpoint por lote
+        file_extension = os.path.splitext(file.filename)[1].lower()
+        unique_filename = f"{dni}_Boleta_{mes_nombre}_{anio}{file_extension}"
         
-        # Crear directorio de usuario si no existe
+        # Directorio del usuario y rutas
         user_dir = os.path.join(STORAGE_PATH, dni)
         os.makedirs(user_dir, exist_ok=True)
-        
-        # Guardar el archivo
         file_path = os.path.join(user_dir, unique_filename)
+
+        # Ruta relativa con '/' para URLs correctas
+        relative_path = "/".join(["originales", dni, unique_filename])
+
+        # Guardar el archivo
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        # Crear fecha personalizada con el mes y año proporcionados
+        # Crear fecha personalizada con el mes y año proporcionados (día 1)
         from datetime import datetime
         try:
-            # Usamos el día 1 del mes para evitar problemas con meses que tienen diferente cantidad de días
             custom_date = datetime(anio, mes, 1)
         except ValueError as e:
             raise HTTPException(
@@ -1038,18 +1075,21 @@ async def upload_documento_test(
             )
 
         # Insertar el documento en la base de datos
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO documentos 
             (usuario_id, nombre_archivo, ruta, estado, subido_en)
             VALUES (%s, %s, %s, %s, %s)
             RETURNING id
-        """, (
-            usuario_id,
-            base_filename,  # Usamos el nombre con formato
-            os.path.join("originales", dni, unique_filename),
-            'pendiente',  # estado
-            custom_date  # subido_en (datetime object)
-        ))
+            """,
+            (
+                usuario_id,
+                unique_filename,
+                relative_path,
+                'pendiente',
+                custom_date
+            )
+        )
         
         documento_id = cursor.fetchone()[0]
         conn.commit()
@@ -1057,8 +1097,8 @@ async def upload_documento_test(
         return {
             "mensaje": "Documento de prueba subido exitosamente",
             "documento_id": documento_id,
-            "nombre_archivo": base_filename,
-            "ruta_archivo": os.path.join("originales", dni, unique_filename),
+            "nombre_archivo": unique_filename,
+            "ruta": relative_path,
             "mes": mes,
             "anio": anio,
             "dni": dni
