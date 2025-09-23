@@ -5,7 +5,6 @@ import shutil
 from datetime import datetime
 import uuid
 from psycopg2.extras import RealDictCursor
-from app.utils.timezone import now_lima
 
 from app.database import get_connection
 from app.api.endpoints.auth.auth_controller import get_current_user
@@ -90,7 +89,7 @@ async def upload_documento(
         usuario_id = usuario[0]
 
         # Verificar si ya existe un documento para este usuario en el mismo mes y año
-        now = now_lima()
+        now = datetime.now()
         cursor.execute("""
             SELECT COUNT(*) 
             FROM documentos d
@@ -142,7 +141,7 @@ async def upload_documento(
             VALUES (%s, %s, %s, %s, %s)
             RETURNING id
             """,
-            (usuario_id, unique_filename, relative_path, 'pendiente', now_lima())
+            (usuario_id, unique_filename, relative_path, 'pendiente', datetime.now())
         )
         
         documento_id = cursor.fetchone()[0]
@@ -538,7 +537,7 @@ async def upload_documentos_lote(
             
             # Buscar año (4 dígitos)
             anio_match = re.search(r'(?:^|[_-])(20\d{2})(?:$|[_-])', nombre_archivo)
-            anio = int(anio_match.group(1)) if anio_match else now_lima().year
+            anio = int(anio_match.group(1)) if anio_match else datetime.now().year
             
             # Buscar mes numérico (1-12 o 01-12)
             mes_match = re.search(r'(?:^|[_-])(0?[1-9]|1[0-2])(?:$|[^0-9])', nombre_archivo)
@@ -551,7 +550,7 @@ async def upload_documentos_lote(
                     return mes_num, anio
             
             # Si no se encuentra, usar el mes y año actual
-            return now_lima().month, anio
+            return datetime.now().month, anio
         
         for file in files:
             try:
@@ -598,29 +597,20 @@ async def upload_documentos_lote(
                 mes_archivo, anio_archivo = extraer_mes_anio(file.filename)
                 
                 # Obtener mes y año actual
-                now = now_lima()
+                now = datetime.now()
                 mes_actual = now.month
                 anio_actual = now.year
                 
-                # Calcular el mes anterior
-                if mes_actual == 1:
-                    mes_anterior = 12
-                    anio_anterior = anio_actual - 1
-                else:
-                    mes_anterior = mes_actual - 1
-                    anio_anterior = anio_actual
-                
-                # Verificar si el archivo es del mes actual, anterior o posterior
+                # Validar rango permitido: desde Enero hasta el mes actual, dentro del año actual
                 es_mes_valido = (
-                    (anio_archivo == anio_actual and mes_archivo == mes_actual) or  # Mes actual
-                    (anio_archivo == anio_anterior and mes_archivo == mes_anterior)  # Mes anterior
+                    anio_archivo == anio_actual and 1 <= mes_archivo <= mes_actual
                 )
                 
                 if not es_mes_valido:
                     errores.append({
                         "archivo": file.filename,
                         "dni": dni,
-                        "error": f"Solo se permiten documentos del mes actual ({mes_actual}/{anio_actual}) o del mes anterior ({mes_anterior}/{anio_anterior})"
+                        "error": f"Solo se permiten documentos desde Enero hasta {meses[mes_actual]} de {anio_actual}"
                     })
                     continue
                 
@@ -682,7 +672,7 @@ async def upload_documentos_lote(
                     VALUES (%s, %s, %s, %s, %s)
                     RETURNING id
                     """,
-                    (usuario_id, unique_filename, relative_path, 'pendiente', now_lima())
+                    (usuario_id, unique_filename, relative_path, 'pendiente', datetime.now())
                 )
                 
                 documento_id = cursor.fetchone()[0]
