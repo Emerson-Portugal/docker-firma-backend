@@ -45,12 +45,15 @@ def firmar_pdf(original_path, nombre_firmante, dni_firmante):
 
     # Configurar el texto de la firma
     texto_firma_lineas = [
-        f"Firmado por: {nombre_firmante} (DNI: {dni_firmante})",
+        "Firmado por:",
+        f"{nombre_firmante}",
+        f"(DNI: {dni_firmante})",
         f"Fecha: {now_lima().strftime('%d/%m/%Y %H:%M:%S')}"
     ]
 
-    # Estilo de texto
-    can.setFont("Helvetica", 9)
+    # Estilo de texto (más pequeño)
+    font_size = 8
+    can.setFont("Helvetica", font_size)
 
     # Calcular área exacta del recuadro "TRABAJADOR"
     margen = 36
@@ -59,16 +62,16 @@ def firmar_pdf(original_path, nombre_firmante, dni_firmante):
     ancho_bloque = x_fin - x_inicio
 
     # Altura desde abajo donde va la firma
-    y_firma = 630  # Ajusta si quieres más arriba o abajo
+    y_firma = 650  # Ajusta si quieres más arriba o abajo
 
     # Calcular ancho máximo del texto para centrarlo en el bloque
-    line_widths = [can.stringWidth(linea, "Helvetica", 9) for linea in texto_firma_lineas]
+    line_widths = [can.stringWidth(linea, "Helvetica", font_size) for linea in texto_firma_lineas]
     max_line_width = max(line_widths)
     x_texto = x_inicio + max(0, (ancho_bloque - max_line_width) / 2)
 
     # Dibujar las líneas de texto una encima de la otra, centradas
     # No dibujar fondo para no tapar líneas del PDF
-    leading = 12  # separación entre líneas
+    leading = 11  # separación entre líneas acorde al tamaño 8
     y_actual = y_firma + leading  # primera línea un poco arriba
     for linea in texto_firma_lineas:
         can.drawString(x_texto, y_actual, linea)

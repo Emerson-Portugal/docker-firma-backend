@@ -1,3 +1,4 @@
+-- Tabla (permite NULL en fecha_nacimiento como pusiste)
 CREATE TABLE IF NOT EXISTS usuarios (
     id SERIAL PRIMARY KEY,
     dni VARCHAR(15) UNIQUE NOT NULL,
@@ -5,20 +6,101 @@ CREATE TABLE IF NOT EXISTS usuarios (
     email VARCHAR(150) UNIQUE,
     password TEXT NOT NULL,
     rol VARCHAR(20) NOT NULL DEFAULT 'empleado',
+    fecha_nacimiento DATE DEFAULT NULL,
     activo BOOLEAN DEFAULT TRUE,
     creado_en TIMESTAMP DEFAULT NOW()
 );
 
 BEGIN;
-INSERT INTO usuarios (nombre, dni, email, password, rol) VALUES ('Juan Pérez', '12345678', 'juan.perez@empresa.com', '1234', 'empleado');
-INSERT INTO usuarios (nombre, dni, email, password, rol) VALUES ('María López', '87654321', 'maria.lopez@empresa.com', '1234', 'rrhh');
-INSERT INTO usuarios (nombre, dni, email, password, rol) VALUES ('Luis Luque', '72797080', 'luizln.lopez@empresa.com', '1234', 'rrhh');
-INSERT INTO usuarios (nombre, dni, email, password, rol) VALUES ('Luis Federico', '89431234', 'luizln.lopez2@empresa.com', '1234', 'rrhh');
-INSERT INTO usuarios (nombre, dni, email, password, rol) VALUES ('Emerson Portugal', '87654311', 'luizln.lopez3@empresa.com', '1234', 'empleado');
-INSERT INTO usuarios (nombre, dni, email, password, rol) VALUES ('Frank Duarte', '22222222', 'luizln.lopez4@empresa.com', '1234', 'rrhh');
-INSERT INTO usuarios (nombre, dni, email, password, rol) VALUES ('Papita Gabriela de Duarte', '11111111', 'maldito.lopez@empresa.com', '1234', 'empleado');
-INSERT INTO usuarios (nombre, dni, email, password, rol) VALUES ('Splendor', '88888888', 'splendor.lopez@empresa.com', '1234', 'soporte');
+
+INSERT INTO usuarios (nombre, dni, email, password, rol, fecha_nacimiento) VALUES
+('HUAYLLANI PUCHO ROLANDO','42680643','42680643@gmail.com','42680643*','empleado','1984-09-21'),
+('UMIYAURI HUAMANI CYBORT KENT','72271021','72271021@gmail.com','72271021*','empleado','2000-09-21'),
+('AGUAYO MENDIZABAL ALHELY NIKOL','72478302','72478302@gmail.com','72478302*','empleado','2001-07-28'),
+('ALONSO TTICA JOSE','40191507','40191507@gmail.com','40191507*','empleado','1978-04-27'),
+('AQUINO LOPE ALBERTH ROMARIO','70100574','70100574@gmail.com','70100574*','empleado','1997-04-30'),
+('AROVILCA YUCRAVILCA EFRAIN','76278123','76278123@gmail.com','76278123*','empleado','1997-11-05'),
+('CALLAPIÑA CHANCO LEONARDO','23992334','23992334@gmail.com','23992334*','empleado','1976-11-06'),
+('CARLOS CCORAHUA FREDY CESAR','42137461','42137461@gmail.com','42137461*','empleado','1983-09-26'),
+('CARLOS HUAYHUA ELVIS','45137440','45137440@gmail.com','45137440*','empleado','1988-07-06'),
+('CARLOS HUAYHUA WERNER','47567530','47567530@gmail.com','47567530*','empleado','1992-10-25'),
+('CARLOS ZAMBRANO ROBERTO MARIO','73590715','73590715@gmail.com','73590715*','empleado','1997-04-27'),
+('CCAHUANA BAUTISTA ROLANDO JOSE','47151509','47151509@gmail.com','47151509*','empleado','1992-05-29'),
+('CCAPA PILA EVER MILTON','43326683','43326683@gmail.com','43326683*','empleado','1985-09-25'),
+('CCOTOHUANCA HUAMANCHOQUE WILFREDO ANTONIO','75819794','75819794@gmail.com','75819794*','empleado','1995-04-02'),
+('CHUCTAYA CCOTOHUANCA ROY KEYNEE','73584385','73584385@gmail.com','73584385*','empleado','2000-04-23'),
+('CHULLO CHAUPI LUIS MIGUEL','48136465','48136465@gmail.com','48136465*','empleado','1993-12-27'),
+('CHULLO CHILO ALIPIO CALIXTO','24867356','24867356@gmail.com','24867356*','empleado','1962-08-15'),
+('CHULLO DURAND JEANY MARA','72977407','72977407@gmail.com','72977407*','empleado','1994-03-24'),
+('CJURO ESCALANTE RONERD JHOMN','42049495','42049495@gmail.com','42049495*','empleado','1981-08-21'),
+('CUTI YUCRA FREDY','47753778','47753778@gmail.com','47753778*','empleado','1991-11-25'),
+('DURAND PHOCCO MATILDE','29413487','29413487@gmail.com','29413487*','empleado','1970-09-09'),
+('ESQUIVEL GARCIA DENNIS','74037063','74037063@gmail.com','74037063*','empleado','1994-10-07'),
+('FLORES CALLO LYNN ATENAS','70107124','70107124@gmail.com','70107124*','empleado','1990-10-28'),
+('GAONA NUÑONCCA RUBEN HUMBERTO','47514653','47514653@gmail.com','47514653*','empleado','1992-12-08'),
+('GUTIERREZ HUAMAN HENRY','25002218','25002218@gmail.com','25002218*','empleado','1975-09-13'),
+('GUZMAN TINOCO MIGUEL ANGEL','70492613','70492613@gmail.com','70492613*','empleado','1993-09-25'),
+('HUAMANI SANTOS JEFERSON FERNANDO','47281683','47281683@gmail.com','47281683*','empleado','1991-08-06'),
+('HUANCARA MACHACCA ROMARIO','71946124','71946124@gmail.com','71946124*','empleado','1995-06-24'),
+('HUILLCA HUILLCA VIDAL','40331543','40331543@gmail.com','40331543*','empleado','1978-11-04'),
+('HUILLCAÑAHUI KANA DEYVIS DENILSON','62045018','62045018@gmail.com','62045018*','empleado','1998-07-20'),
+('HUILLCAÑAHUI KANA WIDSTMAN GGITLER','71095777','71095777@gmail.com','71095777*','empleado','1995-07-05'),
+('JALLO HUAMAN JERSON FRANCO','73029748','73029748@gmail.com','73029748*','empleado','1995-05-01'),
+('LLAIQUE CHUCTAYA ERNESTO','44477063','44477063@gmail.com','44477063*','empleado','1986-02-10'),
+('LOPEZ CONDORI JUNIOR','70496168','70496168@gmail.com','70496168*','empleado','1997-09-10'),
+('NUÑEZ BALBIN CARLOS JHON','20108833','20108833@gmail.com','20108833*','empleado','1977-04-23'),
+('PILA HUAMANI RUFO','45858537','45858537@gmail.com','45858537*','empleado','1989-07-10'),
+('PORTUGAL CARPIO ELMERSON RAMITH','72978558','72978558@gmail.com','72978558*','empleado','2001-08-07'),
+('PUCHURI PALLANI ERICA','48162388','48162388@gmail.com','48162388*','empleado','1993-12-10'),
+('PUMA PUMA EBERSON','47858995','47858995@gmail.com','47858995*','empleado','1992-07-17'),
+('QUICAÑO ACOSTA VICTOR ANDRES','29591624','29591624@gmail.com','29591624*','empleado','1969-12-05'),
+('CHOQUEMAQUE CCOLLQUE MANUEL','45802904','45802904@gmail.com','45802904*','empleado','1981-01-01'),
+('MAMANI CHAYÑA VANESA','47704878','47704878@gmail.com','47704878*','empleado','1993-03-27'),
+('GUZMAN LLERENA OWEN ALONSO','42367807','42367807@gmail.com','42367807*','empleado','1984-03-29'),
+('LLERENA ASCARZA DIEGO','71236958','71236958@gmail.com','71236958*','empleado','1992-01-07'),
+('MONTERO ROMERO LUIS JUAN PABLO','45822858','45822858@gmail.com','45822858*','empleado','1988-05-18'),
+('CRUZ CCAHUANA JORGE','77702086','77702086@gmail.com','77702086*','empleado','1991-01-10'),
+('MACHACA PACO CARLOS ANGEL','75266056','75266056@gmail.com','75266056*','empleado','1999-07-28'),
+('QUISPE HUISA NAYDA','73026927','73026927@gmail.com','73026927*','empleado','1997-11-26'),
+('SAICO OLLACHICA BEATRIZ','77045852','77045852@gmail.com','77045852*','empleado','2001-01-27'),
+('SAICO SUPHO ELBER','47696345','47696345@gmail.com','47696345*','empleado','1993-04-04'),
+('TACO PAUCCARA LUIS ALBERTO','71052618','71052618@gmail.com','71052618*','empleado','2001-06-06'),
+('TICONA MAMANI MERLINGS','45113760','45113760@gmail.com','45113760*','empleado','1988-06-28'),
+('TTIRA CHULLO WILLIAN RUDOL','47541865','47541865@gmail.com','47541865*','empleado','1993-01-18'),
+('URQUIZO MENESES JESUS JAVIER','29598201','29598201@gmail.com','29598201*','empleado','1969-04-21'),
+('VELAZCO QUISPE JAVIER','40505164','40505164@gmail.com','40505164*','empleado','1976-12-01'),
+('YAULI TUNQUIPA SAUL','72106559','72106559@gmail.com','72106559*','empleado','1997-01-20'),
+('YUCRA CCOASAÑA ZENAIDA ROXANA','46487283','46487283@gmail.com','46487283*','empleado','1988-04-11'),
+('YUCRA FLORES PERCY','43346510','43346510@gmail.com','43346510*','empleado','1984-11-10'),
+('YUCRA RETAMOZO JHON DARIO','74170937','74170937@gmail.com','74170937*','empleado','2003-06-08'),
+('ZAMBRANO CARLOS WILFREDO','47124628','47124628@gmail.com','47124628*','empleado','1990-11-18'),
+('ZAMBRANO CHECCO JAMEL','62045404','62045404@gmail.com','62045404*','empleado','1999-06-02'),
+('BENITO OLIVARES GEMINIS LILIANA','70191617','70191617@gmail.com','70191617*','empleado','1999-11-13'),
+('CONDOR SUAREZ ROBERT','70847873','70847873@gmail.com','70847873*','empleado','1991-06-05'),
+('MORENO DURAND KEVIN EDWIN','72754705','72754705@gmail.com','72754705*','empleado','1995-02-17'),
+('QUISPE MELGAR WINDER ARTURO','20074318','20074318@gmail.com','20074318*','empleado','1976-04-13'),
+('ZEGARRA VILLENA DEYVI OSMAR','80250873','80250873@gmail.com','80250873*','empleado','1979-11-11'),
+('CHICATA PINO GISELLA VANESSA','45793611','45793611@gmail.com','45793611*','empleado',NULL),
+('CUEVA MUCHA VANESSA FIORELA','76921793','76921793@gmail.com','76921793*','empleado',NULL),
+('QUISPE SUNI AZELI GIAMI','73103148','73103148@gmail.com','73103148*','empleado',NULL),
+('HUAMAN QUISPE NICK JUNIOR','74855783','74855783@gmail.com','74855783*','empleado',NULL),
+('SANCHEZ BEGAZO POOL SANTOS','46750344','46750344@gmail.com','46750344*','empleado',NULL),
+('HUAYLLA CONDORI MARIO PASTOR','41734306','41734306@gmail.com','41734306*','empleado',NULL),
+('SALAS HURTADO LUIS ALBERTO','41448567','41448567@gmail.com','41448567*','empleado',NULL),
+('SONCCO CRUZ JHON','42169163','42169163@gmail.com','42169163*','empleado',NULL),
+('PUMA TTITO CRISTIAN DENNIS','72093439','72093439@gmail.com','72093439*','empleado',NULL),
+('Usuario Empleado','12345678','usuario.empleado@gmail.com','1234','empleado',NULL),
+('Usuario RRHH','87654321','usuario.rrhh@gmail.com','1234','rrhh',NULL),
+('Usuario Soporte','88888888','usuario.soporte@gmail.com','1234','soporte',NULL);
+
 COMMIT;
+
+
+
+
+
+
+
 
 CREATE TABLE IF NOT EXISTS documentos (
     id SERIAL PRIMARY KEY,
